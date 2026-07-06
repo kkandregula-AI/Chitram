@@ -246,7 +246,7 @@ a{color:var(--gold)}
     <div class="up-zone" id="upZone" onclick="document.getElementById('upFile').click()">Tap to attach an image — Nano Banana will edit or restyle it</div>
     <input type="file" id="upFile" accept="image/*" hidden>
 
-    <button class="btn btn-gold" id="genImgBtn" onclick="generateImage()">◆ Generate image</button>
+    <button class="btn btn-gold" id="genImgBtn">◆ Generate image</button>
     <div class="status" id="imgStatus"></div>
     <div class="result" id="imgResult"></div>
     </div>
@@ -282,7 +282,7 @@ a{color:var(--gold)}
       <option value="veo3fast">Veo 3 Fast · quicker, lower cost</option>
     </select>
 
-    <button class="btn btn-gold" id="genVidBtn" onclick="generateVideo()">◆ Generate video</button>
+    <button class="btn btn-gold" id="genVidBtn">◆ Generate video</button>
     <div class="status" id="vidStatus"></div>
     <div class="result" id="vidResult"></div>
     </div>
@@ -539,6 +539,18 @@ function refreshKeyPill(){
   const p = $("keyPill");
   if(getKey()){ p.classList.add("on"); p.textContent = "key active"; }
   else { p.classList.remove("on"); p.textContent = "no key · free mode"; }
+  refreshGenButtons();
+}
+function refreshGenButtons(){
+  const hasKey = !!getKey();
+  const ib = $("genImgBtn"), vb = $("genVidBtn");
+  if(hasKey){
+    ib.textContent = "◆ Generate image";   ib.className = "btn btn-gold"; ib.onclick = generateImage;
+    vb.textContent = "◆ Generate video";   vb.className = "btn btn-gold"; vb.onclick = generateVideo;
+  }else{
+    ib.textContent = "Add Gemini key in Settings →"; ib.className = "btn btn-line"; ib.onclick = ()=>go("settings");
+    vb.textContent = "Add Gemini key in Settings →"; vb.className = "btn btn-line"; vb.onclick = ()=>go("settings");
+  }
 }
 
 /* ---------- IMAGE generation (Nano Banana) ---------- */
