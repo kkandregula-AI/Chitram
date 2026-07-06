@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0B0A08">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -27,13 +27,13 @@
   --r:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:hidden;width:100%}
 body{
   background:var(--ink);color:var(--text);
   font-family:'DM Sans',system-ui,sans-serif;font-weight:300;
   min-height:100vh;min-height:100dvh;
   padding-bottom:calc(76px + env(safe-area-inset-bottom));
-  overflow-x:hidden;
+  overflow-x:hidden;width:100%;max-width:100%;position:relative;
 }
 h1,h2,h3,.display{font-family:'Cinzel',serif}
 .mono{font-family:'DM Mono',monospace}
@@ -43,7 +43,7 @@ input,textarea,select{font-family:inherit;color:var(--text)}
 
 /* ---------- header ---------- */
 header{
-  padding:calc(18px + env(safe-area-inset-top)) 20px 14px;
+  padding:calc(18px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 14px calc(20px + env(safe-area-inset-left));
   border-bottom:1px solid var(--line);
   display:flex;align-items:baseline;justify-content:space-between;gap:10px;
   position:sticky;top:0;background:rgba(11,10,8,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:50;
@@ -73,8 +73,8 @@ header{
 .frame .ratio-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--gold-dim)}
 
 /* ---------- layout ---------- */
-main{max-width:680px;margin:0 auto}
-.panel{display:none;padding:14px 20px 30px;animation:fadeUp .35s ease}
+main{max-width:680px;margin:0 auto;width:100%}
+.panel{display:none;padding:14px calc(20px + env(safe-area-inset-right)) 30px calc(20px + env(safe-area-inset-left));animation:fadeUp .35s ease}
 .panel.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.panel.active{animation:none}.frame{transition:none}}
@@ -103,12 +103,12 @@ main{max-width:680px;margin:0 auto}
 
 textarea{
   width:100%;background:var(--ink-3);border:1px solid var(--line);border-radius:12px;
-  padding:13px 14px;font-size:15px;line-height:1.55;resize:vertical;min-height:96px;outline:none;
+  padding:13px 14px;font-size:16px;line-height:1.55;resize:vertical;min-height:96px;outline:none;
 }
 textarea:focus,input:focus,select:focus{border-color:var(--gold-dim)}
 input[type=text],input[type=password],select{
   width:100%;background:var(--ink-3);border:1px solid var(--line);border-radius:12px;
-  padding:12px 14px;font-size:14px;outline:none;
+  padding:12px 14px;font-size:16px;outline:none;
 }
 select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;background-size:6px 6px;background-repeat:no-repeat}
 label.fld{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);margin:14px 0 7px}
@@ -246,7 +246,7 @@ a{color:var(--gold)}
     <div class="up-zone" id="upZone" onclick="document.getElementById('upFile').click()">Tap to attach an image — Nano Banana will edit or restyle it</div>
     <input type="file" id="upFile" accept="image/*" hidden>
 
-    <button class="btn btn-gold" id="genImgBtn" onclick="generateImage()">◆ Generate image</button>
+    <button class="btn btn-gold" id="genImgBtn">◆ Generate image</button>
     <div class="status" id="imgStatus"></div>
     <div class="result" id="imgResult"></div>
     </div>
@@ -282,7 +282,7 @@ a{color:var(--gold)}
       <option value="veo3fast">Veo 3 Fast · quicker, lower cost</option>
     </select>
 
-    <button class="btn btn-gold" id="genVidBtn" onclick="generateVideo()">◆ Generate video</button>
+    <button class="btn btn-gold" id="genVidBtn">◆ Generate video</button>
     <div class="status" id="vidStatus"></div>
     <div class="result" id="vidResult"></div>
     </div>
@@ -539,6 +539,18 @@ function refreshKeyPill(){
   const p = $("keyPill");
   if(getKey()){ p.classList.add("on"); p.textContent = "key active"; }
   else { p.classList.remove("on"); p.textContent = "no key · free mode"; }
+  refreshGenButtons();
+}
+function refreshGenButtons(){
+  const hasKey = !!getKey();
+  const ib = $("genImgBtn"), vb = $("genVidBtn");
+  if(hasKey){
+    ib.textContent = "◆ Generate image";   ib.className = "btn btn-gold"; ib.onclick = generateImage;
+    vb.textContent = "◆ Generate video";   vb.className = "btn btn-gold"; vb.onclick = generateVideo;
+  }else{
+    ib.textContent = "Add Gemini key in Settings →"; ib.className = "btn btn-line"; ib.onclick = ()=>go("settings");
+    vb.textContent = "Add Gemini key in Settings →"; vb.className = "btn btn-line"; vb.onclick = ()=>go("settings");
+  }
 }
 
 /* ---------- IMAGE generation (Nano Banana) ---------- */
