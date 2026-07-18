@@ -232,6 +232,12 @@ a{color:var(--gold)}
 
     <label class="fld">Style accents — tap to append</label>
     <div class="chips" id="styleChips"></div>
+
+    <div class="row2">
+      <button class="btn btn-ghost" style="border-color:rgba(95,181,122,.45);color:var(--free)" onclick="copyPrompt('imgPrompt',this)">Copy prompt</button>
+      <a class="btn btn-ghost" style="border-color:rgba(95,181,122,.45);color:var(--free);text-decoration:none" href="https://gemini.google.com" target="_blank" rel="noopener">Open Gemini · free</a>
+    </div>
+    <p class="note" style="margin-top:8px">🟢 <b style="color:var(--free)">Free generation path:</b> compose here, copy, paste into Gemini's web app — Nano Banana images are free there with daily limits, no billing. The in-app button below uses your own key for full control.</p>
     </div>
 
     <div class="zone zone-gold">
@@ -273,6 +279,12 @@ a{color:var(--gold)}
       <button class="chip sel" data-vr="16:9">16:9 landscape</button>
       <button class="chip" data-vr="9:16">9:16 vertical</button>
     </div>
+
+    <div class="row2">
+      <button class="btn btn-ghost" style="border-color:rgba(95,181,122,.45);color:var(--free)" onclick="copyPrompt('vidPrompt',this)">Copy prompt</button>
+      <a class="btn btn-ghost" style="border-color:rgba(95,181,122,.45);color:var(--free);text-decoration:none" href="https://gemini.google.com" target="_blank" rel="noopener">Open Gemini · free</a>
+    </div>
+    <p class="note" style="margin-top:8px">🟢 <b style="color:var(--free)">Free generation path:</b> Gemini's web app includes free Veo video generation with daily limits — paste your prompt there. The in-app button uses your key.</p>
     </div>
 
     <div class="zone zone-gold">
@@ -506,6 +518,24 @@ function clearVault(){
   if(confirm("Clear all prompt history?")){ localStorage.removeItem(LS.vault); renderVault(); }
 }
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ---------- free path: copy prompt ---------- */
+async function copyPrompt(id, btn){
+  const t = $(id).value.trim();
+  if(!t){ btn.textContent = "Write a prompt first"; setTimeout(()=>btn.textContent="Copy prompt", 1400); return; }
+  let ok = false;
+  try{ await navigator.clipboard.writeText(t); ok = true; }
+  catch(e){
+    try{
+      const ta = document.createElement("textarea");
+      ta.value = t; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      ok = document.execCommand("copy"); document.body.removeChild(ta);
+    }catch(e2){}
+  }
+  btn.textContent = ok ? "✓ Copied — paste in Gemini" : "Copy failed — select manually";
+  setTimeout(()=>btn.textContent="Copy prompt", 1800);
+}
 
 /* ---------- settings ---------- */
 function fillSettings(){
