@@ -173,6 +173,20 @@ label.fld{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-sp
 .up-zone.has{border-style:solid}
 .up-zone img{max-height:120px;border-radius:8px;margin-bottom:8px}
 
+/* ---------- lab (free on-device tools) ---------- */
+.tool{display:none}
+.tool.on{display:block;animation:fadeUp .3s ease}
+.lab-canvas{width:100%;border:1px solid var(--line);border-radius:12px;background:#000;display:none;margin-top:12px}
+.lab-canvas.show{display:block}
+input[type=range]{width:100%;accent-color:var(--gold);margin:2px 0 4px}
+.sld{margin-top:10px}
+.sld label{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);margin:0 0 6px}
+.sld label span{color:var(--gold-hi)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.thumbs img{width:62px;height:62px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.sizeinfo{font-family:'DM Mono',monospace;font-size:11px;color:var(--free);letter-spacing:.06em;margin-top:10px;display:none}
+.sizeinfo.show{display:block}
+
 /* nav */
 nav{
   position:fixed;bottom:0;left:0;right:0;z-index:60;
@@ -301,6 +315,154 @@ a{color:var(--gold)}
     <p class="note">Veo billing is per second of output — check current rates in Google AI Studio before large runs. Clips are fetched to your device; nothing is stored by CHITRAM.</p>
   </section>
 
+  <!-- ============ LAB (FREE ON-DEVICE TOOLS) ============ -->
+  <section class="panel" id="p-lab">
+    <div class="hero">
+      <h1>THE LAB<span class="telugu">ప్రయోగశాల</span></h1>
+      <p>Five real tools that run entirely on your device. No key, no upload, no cost — your photos never leave this browser.</p>
+    </div>
+    <div class="legend"><span class="badge badge-free">100% free · offline · private</span></div>
+
+    <label class="fld">Tool</label>
+    <div class="chips" id="labChips">
+      <button class="chip sel" data-t="editor">Editor</button>
+      <button class="chip" data-t="poster">Poster</button>
+      <button class="chip" data-t="compress">Compress</button>
+      <button class="chip" data-t="wm">Watermark</button>
+      <button class="chip" data-t="slides">Slideshow→Video</button>
+    </div>
+
+    <!-- EDITOR -->
+    <div class="tool on" id="t-editor">
+      <div class="up-zone" onclick="document.getElementById('edFile').click()">Tap to choose a photo</div>
+      <input type="file" id="edFile" accept="image/*" hidden>
+      <canvas class="lab-canvas" id="edCanvas"></canvas>
+      <div id="edCtrls" style="display:none">
+        <label class="fld">Crop</label>
+        <div class="chips" id="edRatio">
+          <button class="chip sel" data-r="0">Original</button>
+          <button class="chip" data-r="1">1:1</button>
+          <button class="chip" data-r="1.7778">16:9</button>
+          <button class="chip" data-r="0.5625">9:16</button>
+          <button class="chip" data-r="1.3333">4:3</button>
+          <button class="chip" data-r="0.8">4:5</button>
+        </div>
+        <label class="fld">Look</label>
+        <div class="chips" id="edPreset">
+          <button class="chip sel" data-f="">Original</button>
+          <button class="chip" data-f="grayscale(1)">B&amp;W</button>
+          <button class="chip" data-f="sepia(.65)">Sepia</button>
+          <button class="chip" data-f="sepia(.25) saturate(1.35)">Warm</button>
+          <button class="chip" data-f="saturate(.85) hue-rotate(12deg) brightness(1.03)">Cool</button>
+        </div>
+        <div class="sld"><label>Brightness <span id="vB">100</span></label><input type="range" id="edB" min="50" max="150" value="100"></div>
+        <div class="sld"><label>Contrast <span id="vC">100</span></label><input type="range" id="edC" min="50" max="150" value="100"></div>
+        <div class="sld"><label>Saturation <span id="vS">100</span></label><input type="range" id="edS" min="0" max="200" value="100"></div>
+        <div class="row2">
+          <button class="btn btn-line" onclick="edExport('image/png')">Save PNG</button>
+          <button class="btn btn-ghost" onclick="edExport('image/jpeg')">Save JPEG</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- POSTER -->
+    <div class="tool" id="t-poster">
+      <label class="fld">Headline</label>
+      <input type="text" id="poHead" value="You can rent the model.">
+      <label class="fld">Subline</label>
+      <textarea id="poSub" style="min-height:70px">You can't rent the discipline.</textarea>
+      <label class="fld">Footer</label>
+      <input type="text" id="poFoot" value="Designed & Architected by Krishnamurthy Kandregula · Made by Claude">
+      <label class="fld">Theme</label>
+      <div class="chips" id="poTheme">
+        <button class="chip sel" data-th="gold">Midnight Gold</button>
+        <button class="chip" data-th="neon">Neon Lab</button>
+        <button class="chip" data-th="emerald">Emerald</button>
+      </div>
+      <label class="fld">Size</label>
+      <div class="chips" id="poSize">
+        <button class="chip sel" data-sz="1080x1350">Portrait 4:5</button>
+        <button class="chip" data-sz="1080x1080">Square</button>
+        <button class="chip" data-sz="1920x1080">Landscape</button>
+      </div>
+      <button class="btn btn-line" onclick="poRender()">Render poster</button>
+      <canvas class="lab-canvas" id="poCanvas"></canvas>
+      <button class="btn btn-ghost" id="poDl" style="display:none" onclick="dlCanvas(document.getElementById('poCanvas'),'chitram-poster.png','image/png')">Download PNG</button>
+    </div>
+
+    <!-- COMPRESS -->
+    <div class="tool" id="t-compress">
+      <div class="up-zone" onclick="document.getElementById('cpFile').click()">Tap to choose a photo</div>
+      <input type="file" id="cpFile" accept="image/*" hidden>
+      <div id="cpCtrls" style="display:none">
+        <div class="sld"><label>Quality <span id="vQ">80</span>%</label><input type="range" id="cpQ" min="30" max="95" value="80"></div>
+        <label class="fld">Max side</label>
+        <div class="chips" id="cpMax">
+          <button class="chip" data-m="0">Original</button>
+          <button class="chip sel" data-m="2048">2048px</button>
+          <button class="chip" data-m="1280">1280px</button>
+          <button class="chip" data-m="800">800px</button>
+        </div>
+        <label class="fld">Format</label>
+        <div class="chips" id="cpFmt">
+          <button class="chip sel" data-f="image/jpeg">JPEG</button>
+          <button class="chip" data-f="image/webp">WebP</button>
+          <button class="chip" data-f="image/png">PNG</button>
+        </div>
+        <div class="sizeinfo" id="cpInfo"></div>
+        <button class="btn btn-line" onclick="cpRun()">Compress &amp; download</button>
+      </div>
+    </div>
+
+    <!-- WATERMARK -->
+    <div class="tool" id="t-wm">
+      <div class="up-zone" onclick="document.getElementById('wmFile').click()">Tap to choose a photo</div>
+      <input type="file" id="wmFile" accept="image/*" hidden>
+      <div id="wmCtrls" style="display:none">
+        <label class="fld">Watermark text</label>
+        <input type="text" id="wmText" value="© Krishnamurthy Kandregula Innovation Lab">
+        <label class="fld">Position</label>
+        <div class="chips" id="wmPos">
+          <button class="chip sel" data-p="br">Bottom right</button>
+          <button class="chip" data-p="bl">Bottom left</button>
+          <button class="chip" data-p="tr">Top right</button>
+          <button class="chip" data-p="c">Center</button>
+        </div>
+        <div class="sld"><label>Opacity <span id="vO">70</span>%</label><input type="range" id="wmO" min="15" max="100" value="70"></div>
+        <div class="sld"><label>Size <span id="vW">3</span></label><input type="range" id="wmS" min="1" max="6" value="3"></div>
+        <canvas class="lab-canvas show" id="wmCanvas"></canvas>
+        <div class="row2">
+          <button class="btn btn-line" onclick="dlCanvas(document.getElementById('wmCanvas'),'chitram-stamped.png','image/png')">Save PNG</button>
+          <button class="btn btn-ghost" onclick="dlCanvas(document.getElementById('wmCanvas'),'chitram-stamped.jpg','image/jpeg',.92)">Save JPEG</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDESHOW -->
+    <div class="tool" id="t-slides">
+      <div class="up-zone" onclick="document.getElementById('slFiles').click()">Tap to choose 2–10 photos</div>
+      <input type="file" id="slFiles" accept="image/*" multiple hidden>
+      <div class="thumbs" id="slThumbs"></div>
+      <div id="slCtrls" style="display:none">
+        <label class="fld">Seconds per photo</label>
+        <div class="chips" id="slDur">
+          <button class="chip" data-d="2">2s</button>
+          <button class="chip sel" data-d="3">3s</button>
+          <button class="chip" data-d="4">4s</button>
+        </div>
+        <label class="fld">Motion</label>
+        <div class="chips" id="slKb">
+          <button class="chip sel" data-k="1">Ken Burns zoom</button>
+          <button class="chip" data-k="0">Still</button>
+        </div>
+        <button class="btn btn-line" id="slGo" onclick="slMake()">◈ Make video</button>
+      </div>
+      <div class="status" id="slStatus"></div>
+      <div class="result" id="slResult"></div>
+      <p class="note">Rendered at 720p on your device via canvas recording — free and private. Output is MP4 on iPhone, WebM elsewhere.</p>
+    </div>
+  </section>
+
   <!-- ============ MODELS (FREE GUIDE) ============ -->
   <section class="panel" id="p-models">
     <div class="hero"><h1>MODELS<span class="telugu">నమూనాలు</span></h1>
@@ -366,13 +528,14 @@ a{color:var(--gold)}
 </main>
 
 <footer>
-  <div class="sig">CHITRAM · v1.0 · single-file PWA<br>
+  <div class="sig">CHITRAM · v1.2 · single-file PWA<br>
   <b>Designed &amp; Architected by Krishnamurthy Kandregula · Made by Claude</b></div>
 </footer>
 
 <nav>
   <button class="nav-btn active" data-p="studio" onclick="go('studio')"><span class="ic">◆</span>Studio</button>
   <button class="nav-btn" data-p="motion" onclick="go('motion')"><span class="ic">▶</span>Motion</button>
+  <button class="nav-btn" data-p="lab" onclick="go('lab')"><span class="ic" style="color:var(--free)">◈</span>Lab</button>
   <button class="nav-btn" data-p="models" onclick="go('models')"><span class="ic">☰</span>Models</button>
   <button class="nav-btn" data-p="vault" onclick="go('vault')"><span class="ic">◇</span>Vault</button>
   <button class="nav-btn" data-p="settings" onclick="go('settings')"><span class="ic">⚙</span>Set</button>
@@ -717,6 +880,245 @@ function pollVeo(opName, key, started, st, out, btn){
       btn.disabled = false;
     }
   }, 8000);
+}
+
+/* ================= THE LAB — free on-device tools ================= */
+function chipify(boxId, onPick){
+  const box = $(boxId);
+  box.querySelectorAll(".chip").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      box.querySelectorAll(".chip").forEach(c=>c.classList.toggle("sel", c===b));
+      onPick(b.dataset);
+    });
+  });
+}
+function chipVal(boxId, key){ const s = document.querySelector("#"+boxId+" .chip.sel"); return s ? s.dataset[key] : null; }
+function loadImg(file){ return new Promise((res,rej)=>{
+  const u = URL.createObjectURL(file); const im = new Image();
+  im.onload = ()=>res(im); im.onerror = rej; im.src = u;
+});}
+function dlCanvas(cv, name, type, q){
+  cv.toBlob(b=>{
+    if(!b){ alert("Export failed — this format may be unsupported here."); return; }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(b); a.download = name; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  }, type||"image/png", q);
+}
+function cropRect(w,h,ratio){
+  if(!ratio) return {x:0,y:0,w,h};
+  let cw=w, ch=w/ratio;
+  if(ch>h){ ch=h; cw=h*ratio; }
+  return {x:(w-cw)/2, y:(h-ch)/2, w:cw, h:ch};
+}
+/* ---- tool switcher ---- */
+chipify("labChips", d=>{
+  document.querySelectorAll(".tool").forEach(t=>t.classList.remove("on"));
+  $("t-"+d.t).classList.add("on");
+});
+
+/* ---- 1. EDITOR ---- */
+let edImg=null, edR=0, edF="";
+$("edFile").addEventListener("change", async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  edImg = await loadImg(f);
+  $("edCtrls").style.display="block"; $("edCanvas").classList.add("show");
+  edDraw();
+});
+function edDraw(){
+  if(!edImg) return;
+  const r = cropRect(edImg.naturalWidth, edImg.naturalHeight, edR);
+  const maxSide = 1600, sc = Math.min(1, maxSide/Math.max(r.w,r.h));
+  const cv = $("edCanvas"); cv.width = Math.round(r.w*sc); cv.height = Math.round(r.h*sc);
+  const x = cv.getContext("2d");
+  x.filter = "brightness("+$("edB").value+"%) contrast("+$("edC").value+"%) saturate("+$("edS").value+"%) " + edF;
+  x.drawImage(edImg, r.x, r.y, r.w, r.h, 0, 0, cv.width, cv.height);
+}
+["edB","edC","edS"].forEach((id,i)=>{
+  $(id).addEventListener("input", ()=>{
+    $(["vB","vC","vS"][i]).textContent = $(id).value;
+    edDraw();
+  });
+});
+chipify("edRatio", d=>{ edR = parseFloat(d.r)||0; edDraw(); });
+chipify("edPreset", d=>{ edF = d.f||""; edDraw(); });
+function edExport(type){
+  if(!edImg) return;
+  dlCanvas($("edCanvas"), "chitram-edit."+(type==="image/png"?"png":"jpg"), type, .93);
+}
+
+/* ---- 2. POSTER ---- */
+const PO_THEMES = {
+  gold:    {bg:["#151209","#0B0A08"], a:"#E8D5A3", b:"#C9A24B", t:"#EDE6D6", d:"#9C927C"},
+  neon:    {bg:["#140A20","#0A0714"], a:"#E879F9", b:"#22D3EE", t:"#F1EAFB", d:"#9C8FB5"},
+  emerald: {bg:["#07130C","#0B0A08"], a:"#A7F3D0", b:"#5FB57A", t:"#E9F5EC", d:"#8AA893"}
+};
+function poWrap(x, text, cx, y, maxW, lh, font){
+  x.font = font;
+  const words = String(text).split(/\s+/); let line="", out=[];
+  words.forEach(w=>{
+    const t = line ? line+" "+w : w;
+    if(x.measureText(t).width > maxW && line){ out.push(line); line = w; } else line = t;
+  });
+  if(line) out.push(line);
+  out.forEach((l,i)=>x.fillText(l, cx, y+i*lh));
+  return y + out.length*lh;
+}
+async function poRender(){
+  try{ await document.fonts.load("700 90px Cinzel"); await document.fonts.load("400 40px 'DM Sans'"); await document.fonts.load("400 24px 'DM Mono'"); }catch(e){}
+  const th = PO_THEMES[chipVal("poTheme","th")||"gold"];
+  const [W,H] = (chipVal("poSize","sz")||"1080x1350").split("x").map(Number);
+  const cv = $("poCanvas"); cv.width=W; cv.height=H;
+  const x = cv.getContext("2d");
+  const g = x.createLinearGradient(0,0,W,H); g.addColorStop(0,th.bg[0]); g.addColorStop(1,th.bg[1]);
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  // frame + corner ticks
+  const m = Math.round(W*0.055);
+  x.strokeStyle = th.b; x.globalAlpha=.55; x.lineWidth=2; x.strokeRect(m,m,W-2*m,H-2*m);
+  x.globalAlpha=1; x.lineWidth=5;
+  const tk = Math.round(W*0.03);
+  [[m,m,1,1],[W-m,m,-1,1],[m,H-m,1,-1],[W-m,H-m,-1,-1]].forEach(([px,py,dx,dy])=>{
+    x.beginPath(); x.moveTo(px, py+dy*tk); x.lineTo(px,py); x.lineTo(px+dx*tk, py); x.strokeStyle=th.a; x.stroke();
+  });
+  x.textAlign="center";
+  const cx=W/2, headSize=Math.round(W*0.072), subSize=Math.round(W*0.042);
+  // headline
+  x.fillStyle=th.a;
+  let y = H*0.34;
+  y = poWrap(x, $("poHead").value, cx, y, W-2*m-W*0.06, headSize*1.28, "700 "+headSize+"px Cinzel");
+  // divider
+  x.strokeStyle=th.b; x.lineWidth=3; x.globalAlpha=.9;
+  x.beginPath(); x.moveTo(cx-W*0.07, y+headSize*0.15); x.lineTo(cx+W*0.07, y+headSize*0.15); x.stroke(); x.globalAlpha=1;
+  // subline
+  x.fillStyle=th.t;
+  poWrap(x, $("poSub").value, cx, y+headSize*0.75, W-2*m-W*0.12, subSize*1.5, "300 "+subSize+"px 'DM Sans'");
+  // footer
+  x.fillStyle=th.d; x.font = "400 "+Math.round(W*0.019)+"px 'DM Mono'";
+  x.fillText($("poFoot").value, cx, H-m-Math.round(W*0.028));
+  cv.classList.add("show"); $("poDl").style.display="flex";
+}
+
+/* ---- 3. COMPRESS ---- */
+let cpImgFile=null, cpImg=null;
+$("cpFile").addEventListener("change", async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  cpImgFile=f; cpImg = await loadImg(f);
+  $("cpCtrls").style.display="block";
+  const inf = $("cpInfo"); inf.classList.add("show");
+  inf.textContent = "Original: "+(f.size/1024).toFixed(0)+" KB · "+cpImg.naturalWidth+"×"+cpImg.naturalHeight;
+});
+$("cpQ").addEventListener("input", ()=>{ $("vQ").textContent = $("cpQ").value; });
+chipify("cpMax", ()=>{}); chipify("cpFmt", ()=>{});
+function cpRun(){
+  if(!cpImg) return;
+  const mx = parseInt(chipVal("cpMax","m"))||0;
+  const fmt = chipVal("cpFmt","f")||"image/jpeg";
+  let w=cpImg.naturalWidth, h=cpImg.naturalHeight;
+  if(mx && Math.max(w,h)>mx){ const s=mx/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+  const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+  cv.getContext("2d").drawImage(cpImg,0,0,w,h);
+  cv.toBlob(b=>{
+    if(!b){ alert("This format isn't supported in this browser — try JPEG."); return; }
+    $("cpInfo").textContent = "Original: "+(cpImgFile.size/1024).toFixed(0)+" KB → New: "+(b.size/1024).toFixed(0)+" KB ("+w+"×"+h+")";
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(b);
+    a.download="chitram-compressed."+(fmt==="image/webp"?"webp":fmt==="image/png"?"png":"jpg");
+    a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  }, fmt, parseInt($("cpQ").value)/100);
+}
+
+/* ---- 4. WATERMARK ---- */
+let wmImg=null;
+$("wmFile").addEventListener("change", async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  wmImg = await loadImg(f);
+  $("wmCtrls").style.display="block";
+  wmDraw();
+});
+function wmDraw(){
+  if(!wmImg) return;
+  const cv=$("wmCanvas");
+  const maxSide=2000, sc=Math.min(1, maxSide/Math.max(wmImg.naturalWidth, wmImg.naturalHeight));
+  cv.width=Math.round(wmImg.naturalWidth*sc); cv.height=Math.round(wmImg.naturalHeight*sc);
+  const x=cv.getContext("2d");
+  x.drawImage(wmImg,0,0,cv.width,cv.height);
+  const txt=$("wmText").value.trim(); if(!txt) return;
+  const fs = Math.round(cv.width*0.012*parseInt($("wmS").value)+10);
+  x.font="500 "+fs+"px 'DM Sans'";
+  x.globalAlpha=parseInt($("wmO").value)/100;
+  const pad=Math.round(fs*1.2), tw=x.measureText(txt).width;
+  const pos=chipVal("wmPos","p")||"br";
+  let tx,ty;
+  if(pos==="br"){ tx=cv.width-tw-pad; ty=cv.height-pad; }
+  else if(pos==="bl"){ tx=pad; ty=cv.height-pad; }
+  else if(pos==="tr"){ tx=cv.width-tw-pad; ty=pad+fs; }
+  else { tx=(cv.width-tw)/2; ty=cv.height/2; }
+  x.fillStyle="#000"; x.fillText(txt, tx+2, ty+2);
+  x.fillStyle="#EDE6D6"; x.fillText(txt, tx, ty);
+  x.globalAlpha=1;
+}
+["wmO","wmS"].forEach((id,i)=>$(id).addEventListener("input",()=>{ $(["vO","vW"][i]).textContent=$(id).value; wmDraw(); }));
+$("wmText").addEventListener("input", wmDraw);
+chipify("wmPos", wmDraw);
+
+/* ---- 5. SLIDESHOW → VIDEO ---- */
+let slImgs=[];
+$("slFiles").addEventListener("change", async e=>{
+  const fs=[...e.target.files].slice(0,10); if(!fs.length) return;
+  slImgs = await Promise.all(fs.map(loadImg));
+  $("slThumbs").innerHTML = slImgs.map(im=>'<img src="'+im.src+'">').join("");
+  $("slCtrls").style.display = slImgs.length>=2 ? "block":"none";
+  if(slImgs.length<2) setStatus($("slStatus"),"err","Pick at least 2 photos.");
+  else hideStatus($("slStatus"));
+});
+chipify("slDur",()=>{}); chipify("slKb",()=>{});
+function slCover(x,im,W,H,scale){
+  const s=Math.max(W/im.naturalWidth,H/im.naturalHeight)*scale;
+  const w=im.naturalWidth*s, h=im.naturalHeight*s;
+  x.drawImage(im,(W-w)/2,(H-h)/2,w,h);
+}
+async function slMake(){
+  const st=$("slStatus"), out=$("slResult"), btn=$("slGo");
+  if(slImgs.length<2){ setStatus(st,"err","Pick at least 2 photos."); return; }
+  const cv=document.createElement("canvas"); cv.width=1280; cv.height=720;
+  const x=cv.getContext("2d");
+  if(!cv.captureStream || typeof MediaRecorder==="undefined"){
+    setStatus(st,"err","This browser can't record canvas video — try updating iOS/Chrome."); return;
+  }
+  const mime=["video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9","video/webm"].find(m=>MediaRecorder.isTypeSupported(m));
+  if(!mime){ setStatus(st,"err","No supported video format on this device."); return; }
+  const dur=(parseInt(chipVal("slDur","d"))||3)*1000;
+  const kb=chipVal("slKb","k")!=="0";
+  btn.disabled=true; out.innerHTML="";
+  setStatus(st,"busy",'<span class="pulse"></span>Recording '+slImgs.length+' slides at 720p…');
+  try{
+    const stream=cv.captureStream(30);
+    const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000});
+    const chunks=[]; rec.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
+    const done=new Promise(res=>rec.onstop=res);
+    rec.start(200);
+    for(let i=0;i<slImgs.length;i++){
+      const t0=performance.now();
+      await new Promise(res=>{
+        (function fr(){
+          const t=Math.min(1,(performance.now()-t0)/dur);
+          x.fillStyle="#000"; x.fillRect(0,0,1280,720);
+          slCover(x,slImgs[i],1280,720, kb ? 1+0.12*t : 1);
+          if(t<1) requestAnimationFrame(fr); else res();
+        })();
+      });
+    }
+    rec.stop(); await done;
+    const blob=new Blob(chunks,{type:mime});
+    const url=URL.createObjectURL(blob);
+    const ext=mime.indexOf("mp4")>-1?"mp4":"webm";
+    out.innerHTML='<video src="'+url+'" controls playsinline loop></video>'+
+      '<div class="meta">'+slImgs.length+' slides · '+(dur/1000)+'s each · 720p · '+ext.toUpperCase()+' · on-device</div>'+
+      '<a class="btn btn-line" style="text-decoration:none" download="chitram-slideshow.'+ext+'" href="'+url+'">Download video</a>';
+    setStatus(st,"ok","Done — rendered entirely on your device. Free.");
+  }catch(e){
+    setStatus(st,"err","✕ "+esc(String(e.message||e).slice(0,200)));
+  }finally{ btn.disabled=false; }
 }
 
 /* ---------- PWA scaffolding ---------- */
